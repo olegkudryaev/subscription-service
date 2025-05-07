@@ -7,6 +7,8 @@ import com.subscriptionservice.model.Subscription;
 import com.subscriptionservice.model.User;
 import com.subscriptionservice.repository.SubscriptionRepository;
 import com.subscriptionservice.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,13 +34,13 @@ public class SubscriptionService {
     public SubscriptionDto getSubscriptionById(Long id) {
         return subscriptionRepository.findById(id)
                 .map(subscriptionMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Subscription not found with id: " + id));
     }
 
     @Transactional
     public Long createSubscription(SubscriptionDto subscriptionDto) {
         User user = userRepository.findById(subscriptionDto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + subscriptionDto.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + subscriptionDto.getUserId()));
         
         Subscription subscription = subscriptionMapper.toEntity(subscriptionDto, user);
         return subscriptionRepository.save(subscription).getId();
@@ -47,10 +49,10 @@ public class SubscriptionService {
     @Transactional
     public SubscriptionDto updateSubscription(Long id, SubscriptionDto subscriptionDto) {
         Subscription existingSubscription = subscriptionRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Subscription not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Subscription not found with id: " + id));
         
         User user = userRepository.findById(subscriptionDto.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + subscriptionDto.getUserId()));
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + subscriptionDto.getUserId()));
         
         subscriptionMapper.updateEntityFromDto(subscriptionDto, existingSubscription, user);
         Subscription savedSubscription = subscriptionRepository.save(existingSubscription);
@@ -60,7 +62,7 @@ public class SubscriptionService {
     @Transactional
     public void deleteSubscription(Long id) {
         if (!subscriptionRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Subscription not found with id: " + id);
+            throw new EntityNotFoundException("Subscription not found with id: " + id);
         }
         subscriptionRepository.deleteById(id);
     }
@@ -68,7 +70,7 @@ public class SubscriptionService {
     @Transactional(readOnly = true)
     public List<SubscriptionDto> getSubscriptionsByUserId(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found with id: " + userId);
+            throw new EntityNotFoundException("User not found with id: " + userId);
         }
         return subscriptionRepository.findByUserId(userId).stream()
                 .map(subscriptionMapper::toDto)

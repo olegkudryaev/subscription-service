@@ -3,6 +3,8 @@ package com.subscriptionservice.controller;
 import com.subscriptionservice.dto.UserDto;
 import com.subscriptionservice.dto.UserUpdateDto;
 import com.subscriptionservice.service.UserService;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 @Validated
+@Tag(name = "User Management", description = "APIs for managing user")
 public class UserController {
     private final UserService userService;
 
